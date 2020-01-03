@@ -7,8 +7,10 @@ length = 3
 # define qubits on the grid.
 qubits = [cirq.GridQubit(i, j)
 for i in range(length) for j in range(length)]
-print(qubits)
 
+print(qubits[0])
+print("----------------------")
+print(qubits)
 # prints
 # [cirq.GridQubit(0, 0), cirq.GridQubit(0, 1), cirq.GridQubit(0, 2),
 # cirq.GridQubit(1, 0), cirq.GridQubit(1, 1), cirq.GridQubit(1, 2),

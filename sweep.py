@@ -1,9 +1,9 @@
-#  gate set of the Google xmon architecture
-# import cirq.google
+# sweep
+# collection of parameter resolvers
 
 import cirq
 import random
-
+import sympy
 import numpy as np
 
 def rand2d(rows, cols):
@@ -64,38 +64,6 @@ def one_step(h, jr, jc, x_half_turns, h_half_turns, j_half_turns):
     yield rot_z_layer(h, h_half_turns)
     yield rot_11_layer(jr, jc, j_half_turns)
 
-
-# define the length of the grid.
-length = 3
-# define qubits on the grid.
-qubits = [cirq.GridQubit(i, j) for i in range(length) for j in range(length)]
-
-h, jr, jc = random_instance(3)
-simulator = cirq.Simulator()
-circuit = cirq.Circuit()
-circuit.append(one_step(h, jr, jc, 0.1, 0.2, 0.3))
-circuit.append(cirq.measure(*qubits, key='x'))
-
-# repeat for 100 times and histogram of the counts of the measurement results
-results = simulator.run(circuit, repetitions=100)
-print("results - ")
-print(results.histogram(key='x'))
-# print(results.histogram(key='x'))
-# prints something like
-#Counter({
-# 0: 80,
-# 32: 5,
-# 16: 4,
-# 64: 3,
-# 8: 3,
-# 1: 2,
-# 4: 1,
-# 128: 1,
-# 2: 1})
-
-
-#-------------------------------------------------------------------------------
-
 # calculate the value of the objective function
 def energy_func(length, h, jr, jc):
     def energy(measurements):
@@ -115,24 +83,38 @@ def energy_func(length, h, jr, jc):
         return tot_energy
     return energy
 
-print(results.histogram(key='x', fold_func=energy_func(3, h, jr, jc)))
-
-# prints something like
-# Counter({
-# 7: 79,
-# 5: 12,
-# -1: 4,
-# 1: 3,
-# 13: 1,
-# -3: 1})
 
 def obj_func(result):
     energy_hist = result.histogram(key='x', fold_func=energy_func(3, h, jr, jc))
     print("energy_hist - ")
     print(energy_hist)
-
     return np.sum([k * v for k,v in energy_hist.items()]) / result.repetitions
 
-print('Value of the objective function {}'.format(obj_func(results)))
-# prints something like
-# Value of the objective function -1.0
+
+# define the length of the grid.
+length = 3
+# define qubits on the grid.
+qubits = [cirq.GridQubit(i, j) for i in range(length) for j in range(length)]
+
+# J and h in the Hamiltonian definition
+# For J use two lists, one for the row links - jr and one for the column links - jc
+h, jr, jc = random_instance(3)
+
+circuit = cirq.Circuit()
+
+alpha = sympy.Symbol('alpha')
+beta = sympy.Symbol('beta')
+gamma = sympy.Symbol('gamma')
+
+circuit.append(one_step(h, jr, jc, alpha, beta, gamma))
+circuit.append(cirq.measure(*qubits, key='x'))
+# print(circuit)
+
+simulator = cirq.Simulator()
+
+sweep = (cirq.Linspace(key='alpha', start=0.1, stop=0.9, length=5)
+         * cirq.Linspace(key='beta', start=0.1, stop=0.9, length=5)
+         * cirq.Linspace(key='gamma', start=0.1, stop=0.9, length=5))
+results = simulator.run_sweep(circuit, params=sweep, repetitions=100)
+for result in results:
+    print(result.params.param_dict, obj_func(result))
