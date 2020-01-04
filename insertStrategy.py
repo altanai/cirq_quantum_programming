@@ -1,4 +1,9 @@
 # circuit to add gates based on position of qubits
+# 4 such strategies:
+# - InsertStrategy.EARLIEST,
+# - InsertStrategy.NEW,
+# - InsertStrategy.INLINE and
+# - InsertStrategy.NEW_THEN_INLINE
 
 import cirq
 
@@ -30,3 +35,4 @@ for i, m in enumerate(circuit):
 # prints
 # Moment 0: H((0, 0)) and H((0, 2)) and H((1, 1)) and H((2, 0)) and H((2, 2))
 # Moment 1: X((0, 1)) and X((1, 0)) and X((1, 2)) and X((2, 1))
+
