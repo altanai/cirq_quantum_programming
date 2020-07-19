@@ -20,13 +20,17 @@ brew cask install mactex
 
 Can be either 
 
-**Circuit**
+- **Circuit**
 Circuit is a collection of Moments. A Moment is a collection of Operations that all act during the same abstract time slice.
 
-**schedule**
+- **schedule**
 Schedules offer more control over quantum gates and circuits at the timing level
 
+Cirq has three main ways of defining qubits:
 
+- cirq.NamedQubit: used to label qubits by an abstract name
+- cirq.LineQubit: qubits labelled by number in a linear array
+- cirq.GridQubit: qubits labelled by two numbers in a rectangular lattice.
 
 
 ## Variational quantum algorithms
